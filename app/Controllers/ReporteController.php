@@ -133,4 +133,73 @@ class ReporteController extends BaseController
         echo $formater->getMessage();
       }
   }
+
+    /**
+     * Muestra formulario con select de publishers
+     */
+    public function publishers()
+    {
+        $publishers = $this->db->table('publisher')
+            ->select('id, publisher_name')
+            ->orderBy('publisher_name', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        return view('reportes/publisher', [
+            'publishers' => $publishers,
+        ]);
+    }
+
+    /**
+     * Genera PDF con héroes de publisher seleccionado
+     */
+    public function reportByPublisher()
+    {
+        $publisherId = $this->request->getGet('publisher_id');
+
+        if (empty($publisherId)) {
+            return redirect()->to('/reportes/publishers')
+                ->with('error', 'Seleccione una casa editorial válida');
+        }
+
+        $publisher = $this->db->table('publisher')
+            ->where('id', $publisherId)
+            ->get()
+            ->getRowArray();
+
+        if (!$publisher) {
+            return redirect()->to('/reportes/publishers')
+                ->with('error', 'Casa editorial no encontrada');
+        }
+
+        $query = "
+            SELECT SH.id, SH.superhero_name, SH.full_name, AL.alignment
+            FROM superhero SH
+            LEFT JOIN alignment AL ON SH.alignment_id = AL.id
+            WHERE SH.publisher_id = ?
+            ORDER BY SH.superhero_name
+        ";
+
+        $heroes = $this->db->query($query, [$publisherId])->getResultArray();
+
+        $data = [
+            'publisher' => $publisher,
+            'rows' => $heroes,
+            'estilos' => view('reportes/estilos')
+        ];
+
+        $html = view('reportes/reporte_publisher', $data);
+
+        try {
+            $html2PDF = new Html2Pdf('P', 'A4', 'es', true, 'UTF-8', array(0, 0, 0, 0));
+            $html2PDF->pdf->SetAutoPageBreak(true, 0);
+            $html2PDF->writeHTML($html);
+            $this->response->setHeader('Content-Type', 'application/pdf');
+            $safeName = preg_replace('/[^A-Za-z0-9_-]+/','_', $publisher['publisher_name']);
+            $html2PDF->output('Heroes-' . $safeName . '.pdf');
+        } catch (Html2PdfException $e) {
+            $formater = new ExceptionFormatter($e);
+            echo $formater->getMessage();
+        }
+    }
 }
