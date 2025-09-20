@@ -36,7 +36,7 @@ class ReporteController extends BaseController
           ["id" => 750, "descripcion" => "Impresora", "precio" => 500],
           ["id" => 750, "descripcion" =>"Webcam", "precio" => 220]
         ],
-        "estilos" => view('reportes/estilos')
+        "estilos" => view('reportes/css/superpower.php')
       ];
 
       $html = view('reportes/reporte2', $data);
@@ -75,7 +75,7 @@ class ReporteController extends BaseController
       $rows = $this->db->query($query);
       $data = [
         "rows" => $rows->getResultArray(),
-        "estilos" => view('reportes/estilos')
+        "estilos" => view('reportes/css/superpower.php')
       ];
 
       $html = view('reportes/reporte3', $data);
@@ -144,7 +144,7 @@ class ReporteController extends BaseController
         $data = [
             'publisher' => $publisher,
             'rows' => $heroes,
-            'estilos' => view('reportes/estilos')
+            'estilos' => view('reportes/css/superpower.php')
         ];
 
         $html = view('reportes/reporte_publisher', $data);
@@ -191,7 +191,9 @@ class ReporteController extends BaseController
             $html .= '<p><strong>Color de cabello:</strong> '.($hero['hair_colour'] ? esc($hero['hair_colour']) : 'No especificado').'</p>';
             $html .= '<p><strong>Altura:</strong> '.($hero['height_cm'] ? esc($hero['height_cm']).' cm' : 'No especificado').'</p>';
             $html .= '<p><strong>Peso:</strong> '.($hero['weight_kg'] ? esc($hero['weight_kg']).' kg' : 'No especificado').'</p>';
-            $html .= '</div>';
+            $html .= '<a href="/reportes/generar-poderes/'.$hero['id'].'" class="btn-pdf">Generar PDF</a>';
+            $html .= '<div class="powers-list" style="display:none; margin-top:10px;"></div>';
+            $html .= '</div>'; 
         }
         
         return $this->response->setBody($html);
@@ -199,5 +201,37 @@ class ReporteController extends BaseController
 
     public function buscarView() {
         return view('reportes/buscar');
+    }
+
+    public function generarPdfPoderes($heroId) {
+        $hero = $this->db->table('superhero SH')
+            ->select('SH.superhero_name, SH.full_name, GROUP_CONCAT(SP.power_name SEPARATOR ", ") as powers')
+            ->join('hero_power HP', 'HP.hero_id = SH.id')
+            ->join('superpower SP', 'SP.id = HP.power_id')
+            ->where('SH.id', $heroId)
+            ->groupBy('SH.id')
+            ->get()
+            ->getRowArray();
+
+        if(!$hero) {
+            return redirect()->back()->with('error', 'Superhéroe no encontrado');
+        }
+
+        $data = [
+            'hero' => $hero,
+            'css' => '/* Estilos CSS directos */'
+        ];
+
+        $html = view('reportes/pdf_poderes', $data);
+
+        try {
+            $html2PDF = new Html2Pdf('P', 'A4', 'es', true, 'UTF-8', [10,10,10,10]);
+            $html2PDF->writeHTML($html);
+            $this->response->setHeader('Content-Type', 'application/pdf');
+            $html2PDF->output('Poderes-' . $hero['superhero_name'] . '.pdf');
+        } catch (Html2PdfException $e) {
+            $formater = new ExceptionFormatter($e);
+            echo $formater->getMessage();
+        }
     }
 }

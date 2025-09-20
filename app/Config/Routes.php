@@ -2,9 +2,6 @@
 
 use CodeIgniter\Router\RouteCollection;
 
-/**
- * @var RouteCollection $routes
- */
 $routes->get('/senati', 'Home::index');
 
 //Reportes
@@ -15,6 +12,7 @@ $routes->get('/reportes/ABC', 'ReporteController::getReportABC');
 $routes->get('/reportes/filtro', 'ReporteController::getFiltro');
 $routes->get('/reportes/publishers', 'ReporteController::publishers');
 $routes->get('/reportes/generar', 'ReporteController::reportByPublisher');
+$routes->get('/reportes/generar-poderes/(:num)', 'ReporteController::generarPdfPoderes/$1');
 
 //Buscador
 $routes->get('/api/buscar', 'ReporteController::buscar');

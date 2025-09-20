@@ -1,68 +1,100 @@
-# CodeIgniter 4 Application Starter
+# Superhero Reports System 🦸‍♂️
 
-## What is CodeIgniter?
+![CodeIgniter](https://img.shields.io/badge/CodeIgniter-4.x-orange)
+![PHP](https://img.shields.io/badge/PHP-8.1-blue)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Descripción del Proyecto
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+Sistema avanzado de generación de reportes sobre superhéroes desarrollado con CodeIgniter 4. Permite:
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+- 🔍 Búsqueda avanzada con autocompletado
+- 📊 Generación de reportes en PDF
+- 🏢 Filtrado por casas editoriales
+- 📱 Diseño responsive
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+## Tabla de Contenidos
 
-## Installation & updates
+- [Características](#características-)
+- [Tecnologías](#tecnologías-)
+- [Instalación](#instalación-)
+- [Estructura](#estructura-)
+- [API](#api-)
+- [Capturas](#capturas-)
+- [Roadmap](#roadmap-)
+- [Licencia](#licencia-)
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+## Características ✨
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+| Feature | Descripción |
+|---------|-------------|
+| Búsqueda en tiempo real | AJAX-powered search con sugerencias |
+| Generación de PDFs | Reportes profesionales con HTML2PDF |
+| Diseño responsive | Adaptable a móviles y tablets |
+| Validación de datos | Seguridad en todas las entradas |
 
-## Setup
+## Tecnologías 🛠️
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+- **Backend**: 
+  - CodeIgniter 4
+  - PHP 8.1
+  - MySQL 8.0
+- **Frontend**:
+  - HTML5/CSS3
+  - jQuery
+  - Bootstrap (opcional)
+- **PDF Generation**:
+  - HTML2PDF
+  - TCPDF
 
-## Important Change with index.php
+## Instalación ⚙️
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+```bash
+# Clonar repositorio
+git clone https://github.com/Jesus1908/superhero.git
+cd superhero
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+# Instalar dependencias
+composer install
 
-**Please** read the user guide for a better explanation of how CI4 works!
+# Configurar entorno (copiar .env.example a .env)
+# Configurar credenciales de DB en .env
 
-## Repository Management
+# Importar base de datos
+mysql -u usuario -p superhero < database/schema.sql
+```
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+## Estructura 📂
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+```
+superhero/
+├── app/
+│   ├── Controllers/    # Lógica de aplicación
+│   ├── Models/         # Modelos de datos
+│   ├── Views/          # Vistas y plantillas
+│   └── Config/         # Configuraciones
+├── public/             # Assets públicos
+└── tests/              # Pruebas unitarias
+```
 
-## Server Requirements
+## API Endpoints 🌐
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+```rest
+GET /api/buscar?nombre={query}   # Búsqueda de superhéroes
+GET /reportes/generar-poderes/{id} # PDF de poderes
+```
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## Capturas 🖼️
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+*(Se requieren screenshots)*
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+## Roadmap 🗺️
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+- [x] Búsqueda básica
+- [x] Generación de PDF
+- [ ] Panel de administración
+- [ ] Gráficos estadísticos
+
+## Licencia 📜
+
+MIT License - Ver [LICENSE](LICENSE) para detalles.
