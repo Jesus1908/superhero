@@ -26,3 +26,8 @@ $routes->post('/reportes/generar-tarea1', 'ReporteController::generarTarea1');
 $routes->get('/reportes/tarea2', 'ReporteController::tarea2Form');
 $routes->post('/reportes/generar-tarea2', 'ReporteController::generarTarea2');
 $routes->post('/reportes/generar-grafico', 'ReporteController::generarGrafico');
+
+//Reporte Tarea 3
+$routes->get('/reportes/tarea3', 'ReporteController::tarea3Form');
+$routes->post('/reportes/generar-pesos', 'ReporteController::generarPesos');
+$routes->post('/reportes/generar-pesos-todas', 'ReporteController::generarPesosTodas');

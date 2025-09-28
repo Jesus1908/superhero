@@ -351,7 +351,6 @@ class ReporteController extends BaseController
                 ->with('error', 'Los IDs deben ser mayores a 0');
         }
 
-        // Consultar superhéroes por género y rango de IDs
         $heroes = $this->db->table('superhero SH')
             ->select('SH.id, SH.superhero_name, SH.full_name, G.gender, PB.publisher_name, AL.alignment')
             ->join('gender G', 'SH.gender_id = G.id')
@@ -364,7 +363,6 @@ class ReporteController extends BaseController
             ->get()
             ->getResultArray();
 
-        // Obtener nombres de géneros seleccionados
         $generosNombres = $this->db->table('gender')
             ->select('id, gender')
             ->whereIn('id', $generos)
@@ -389,7 +387,6 @@ class ReporteController extends BaseController
             $html2PDF->writeHTML($html);
             $this->response->setHeader('Content-Type', 'application/pdf');
             
-            // Crear nombre de archivo seguro
             $safeTitle = preg_replace('/[^A-Za-z0-9_-]+/', '_', $tituloReporte);
             $generosStr = implode('_', array_column($generosNombres, 'gender'));
             $html2PDF->output('Tarea2_' . $safeTitle . '_IDs_' . $idMinimo . '_' . $idMaximo . '_' . $generosStr . '.pdf');
@@ -401,7 +398,7 @@ class ReporteController extends BaseController
     }
 
     public function generarGrafico() {
-        // Verificar si es una petición AJAX
+       
         if (!$this->request->isAJAX()) {
             return redirect()->to('/reportes/tarea2');
         }
@@ -416,7 +413,6 @@ class ReporteController extends BaseController
             ]);
         }
 
-        // Consultar superhéroes por publishers seleccionados
         $publishersData = $this->db->table('superhero SH')
             ->select('PB.publisher_name, COUNT(SH.id) as total_heroes')
             ->join('publisher PB', 'SH.publisher_id = PB.id')
@@ -431,4 +427,137 @@ class ReporteController extends BaseController
             'publishers_data' => $publishersData
         ]);
     }
+
+    public function tarea3Form() {
+        return view('reportes/tareas/reporte_tarea3');
+    }
+
+    public function generarPesos() {
+   
+        if (!$this->request->isAJAX()) {
+            return redirect()->to('/reportes/tarea3');
+        }
+
+        $input = json_decode($this->request->getBody(), true);
+        $publishers = $input['publishers'] ?? [];
+
+        if (empty($publishers)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Debe seleccionar al menos una casa editorial'
+            ]);
+        }
+
+        $publishers = array_map('intval', $publishers);
+
+        try {
+            $pesosData = $this->db->table('superhero SH')
+                ->select('PB.publisher_name, AVG(SH.weight_kg) as peso_promedio, COUNT(SH.id) as total_heroes')
+                ->join('publisher PB', 'SH.publisher_id = PB.id')
+                ->whereIn('SH.publisher_id', $publishers)
+                ->where('SH.weight_kg >', 0)
+                ->where('SH.weight_kg IS NOT NULL')
+                ->groupBy('PB.id, PB.publisher_name')
+                ->orderBy('peso_promedio', 'DESC') 
+                ->get()
+                ->getResultArray();
+
+            if (empty($pesosData)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No se encontraron datos de peso para las editoriales seleccionadas'
+                ]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error en generarPesos: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error en la consulta: ' . $e->getMessage()
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'pesos_data' => $pesosData
+        ]);
+    }
+
+    public function generarPesosTodas() {
+        if (!$this->request->isAJAX()) {
+            return redirect()->to('/reportes/tarea3');
+        }
+
+        try {
+            $allPublishers = $this->db->table('publisher')
+                ->select('id, publisher_name')
+                ->orderBy('id', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            $pesosConDatos = $this->db->table('superhero SH')
+                ->select('PB.id, PB.publisher_name, AVG(SH.weight_kg) as peso_promedio, COUNT(SH.id) as total_heroes')
+                ->join('publisher PB', 'SH.publisher_id = PB.id')
+                ->where('SH.weight_kg >', 0)
+                ->where('SH.weight_kg IS NOT NULL')
+                ->groupBy('PB.id, PB.publisher_name')
+                ->get()
+                ->getResultArray();
+
+            $pesosMap = [];
+            foreach ($pesosConDatos as $peso) {
+                $pesosMap[$peso['id']] = $peso;
+            }
+
+            $pesosData = [];
+            foreach ($allPublishers as $publisher) {
+                if (isset($pesosMap[$publisher['id']])) {
+                    
+                    $pesosData[] = [
+                        'publisher_name' => $publisher['publisher_name'],
+                        'peso_promedio' => $pesosMap[$publisher['id']]['peso_promedio'],
+                        'total_heroes' => $pesosMap[$publisher['id']]['total_heroes']
+                    ];
+                } else {
+                    $pesosData[] = [
+                        'publisher_name' => $publisher['publisher_name'],
+                        'peso_promedio' => 0,
+                        'total_heroes' => 0
+                    ];
+                }
+            }
+            $pesosConValores = array_filter($pesosData, function($item) {
+                return $item['peso_promedio'] > 0;
+            });
+            
+            if (!empty($pesosConValores)) {
+                $promedioGeneral = array_sum(array_column($pesosConValores, 'peso_promedio')) / count($pesosConValores);
+                $limiteExtremo = $promedioGeneral * 10;
+                
+                foreach ($pesosData as &$item) {
+                    if ($item['peso_promedio'] > $limiteExtremo) {
+                        $item['es_extremo'] = true;
+                    } else {
+                        $item['es_extremo'] = false;
+                    }
+                }
+            }
+
+            usort($pesosData, function($a, $b) {
+                return $b['peso_promedio'] <=> $a['peso_promedio'];
+            });
+
+            return $this->response->setJSON([
+                'success' => true,
+                'pesos_data' => $pesosData
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error en generarPesosTodas: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error en la consulta: ' . $e->getMessage()
+            ]);
+        }
+    }
+
 }
