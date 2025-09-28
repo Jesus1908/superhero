@@ -145,11 +145,6 @@
         <h1>Generador de Reporte Personalizado</h1>
         <p class="description">Ingresa un título para tu reporte y genera un PDF personalizado</p>
         
-        <div style="text-align: center; margin-bottom: 20px;">
-            <a href="/reportes/publishers" style="color: #007bff; text-decoration: none; margin-right: 20px;">← Volver a Reportes</a>
-            <a href="/reportes/buscar" style="color: #007bff; text-decoration: none;">Buscar Superhéroes</a>
-        </div>
-        
         <form action="/reportes/generar-tarea1" method="post">
             <div class="form-group">
                 <label for="titulo_reporte">Título Reporte:</label>
