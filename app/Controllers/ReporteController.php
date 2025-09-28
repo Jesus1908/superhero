@@ -270,7 +270,6 @@ class ReporteController extends BaseController
                 ->with('error', 'Los IDs deben ser mayores a 0');
         }
 
-        // Consultar superhéroes por género y rango de IDs
         $heroes = $this->db->table('superhero SH')
             ->select('SH.id, SH.superhero_name, SH.full_name, G.gender, PB.publisher_name, AL.alignment')
             ->join('gender G', 'SH.gender_id = G.id')
@@ -283,7 +282,6 @@ class ReporteController extends BaseController
             ->get()
             ->getResultArray();
 
-        // Obtener nombres de géneros seleccionados
         $generosNombres = $this->db->table('gender')
             ->select('id, gender')
             ->whereIn('id', $generos)
@@ -308,7 +306,6 @@ class ReporteController extends BaseController
             $html2PDF->writeHTML($html);
             $this->response->setHeader('Content-Type', 'application/pdf');
             
-            // Crear nombre de archivo seguro
             $safeTitle = preg_replace('/[^A-Za-z0-9_-]+/', '_', $tituloReporte);
             $generosStr = implode('_', array_column($generosNombres, 'gender'));
             $html2PDF->output('Reporte_' . $safeTitle . '_IDs_' . $idMinimo . '_' . $idMaximo . '_' . $generosStr . '.pdf');
