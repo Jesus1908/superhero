@@ -241,28 +241,77 @@ class ReporteController extends BaseController
 
     public function generarTarea1() {
         $tituloReporte = $this->request->getPost('titulo_reporte');
+        $generos = $this->request->getPost('generos');
+        $idMinimo = $this->request->getPost('id_minimo');
+        $idMaximo = $this->request->getPost('id_maximo');
 
         if (empty($tituloReporte)) {
             return redirect()->to('/reportes/tarea1')
                 ->with('error', 'El título del reporte es obligatorio');
         }
 
+        if (empty($generos)) {
+            return redirect()->to('/reportes/tarea1')
+                ->with('error', 'Debe seleccionar al menos un género');
+        }
+
+        if (empty($idMinimo) || empty($idMaximo)) {
+            return redirect()->to('/reportes/tarea1')
+                ->with('error', 'Debe especificar el rango de IDs');
+        }
+
+        if ($idMinimo > $idMaximo) {
+            return redirect()->to('/reportes/tarea1')
+                ->with('error', 'El ID mínimo no puede ser mayor al ID máximo');
+        }
+
+        if ($idMinimo < 1 || $idMaximo < 1) {
+            return redirect()->to('/reportes/tarea1')
+                ->with('error', 'Los IDs deben ser mayores a 0');
+        }
+
+        // Consultar superhéroes por género y rango de IDs
+        $heroes = $this->db->table('superhero SH')
+            ->select('SH.id, SH.superhero_name, SH.full_name, G.gender, PB.publisher_name, AL.alignment')
+            ->join('gender G', 'SH.gender_id = G.id')
+            ->join('publisher PB', 'SH.publisher_id = PB.id')
+            ->join('alignment AL', 'SH.alignment_id = AL.id')
+            ->whereIn('SH.gender_id', $generos)
+            ->where('SH.id >=', $idMinimo)
+            ->where('SH.id <=', $idMaximo)
+            ->orderBy('SH.id', 'ASC')
+            ->get()
+            ->getResultArray();
+
+        // Obtener nombres de géneros seleccionados
+        $generosNombres = $this->db->table('gender')
+            ->select('id, gender')
+            ->whereIn('id', $generos)
+            ->get()
+            ->getResultArray();
+
         $data = [
             'titulo_reporte' => $tituloReporte,
             'fecha_generacion' => date('d/m/Y H:i:s'),
+            'heroes' => $heroes,
+            'generos_seleccionados' => $generosNombres,
+            'total_heroes' => count($heroes),
+            'id_minimo' => $idMinimo,
+            'id_maximo' => $idMaximo,
             'estilos' => view('reportes/css/superpower.php')
         ];
 
         $html = view('reportes/pdf/pdf_tarea1', $data);
 
         try {
-            $html2PDF = new Html2Pdf('P', 'A4', 'es', true, 'UTF-8', [20,20,20,20]);
+            $html2PDF = new Html2Pdf('P', 'A4', 'es', true, 'UTF-8', [10,10,10,10]);
             $html2PDF->writeHTML($html);
             $this->response->setHeader('Content-Type', 'application/pdf');
             
             // Crear nombre de archivo seguro
             $safeTitle = preg_replace('/[^A-Za-z0-9_-]+/', '_', $tituloReporte);
-            $html2PDF->output('Reporte_' . $safeTitle . '.pdf');
+            $generosStr = implode('_', array_column($generosNombres, 'gender'));
+            $html2PDF->output('Reporte_' . $safeTitle . '_IDs_' . $idMinimo . '_' . $idMaximo . '_' . $generosStr . '.pdf');
         } catch (Html2PdfException $e) {
             $html2PDF->clean();
             $formater = new ExceptionFormatter($e);

@@ -73,6 +73,71 @@
             margin-bottom: 30px;
             font-style: italic;
         }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .checkbox-label:hover {
+            background: #e9ecef;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.3);
+            cursor: pointer;
+        }
+        
+        .checkbox-label input[type="checkbox"]:checked + .checkmark {
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .checkbox-label:has(input:checked) {
+            background: #e3f2fd;
+            border-color: #007bff;
+        }
+        
+        .checkmark {
+            font-size: 16px;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        small {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -93,6 +158,53 @@
                        name="titulo_reporte" 
                        placeholder="Ej: Reporte de Ventas 2024"
                        required>
+            </div>
+            
+            <div class="form-group">
+                <label>Filtrar por Género:</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="generos[]" value="1">
+                        <span class="checkmark">♂️ Masculino</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="generos[]" value="2">
+                        <span class="checkmark">♀️ Femenino</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="generos[]" value="3">
+                        <span class="checkmark">❓ N/A</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Rango de IDs de Superhéroes:</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div style="flex: 1;">
+                        <label for="id_minimo" style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">ID Mínimo:</label>
+                        <input type="number" 
+                               id="id_minimo" 
+                               name="id_minimo" 
+                               placeholder="Ej: 1"
+                               min="1"
+                               value="1"
+                               required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="id_maximo" style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">ID Máximo:</label>
+                        <input type="number" 
+                               id="id_maximo" 
+                               name="id_maximo" 
+                               placeholder="Ej: 100"
+                               min="1"
+                               value="100"
+                               required>
+                    </div>
+                </div>
+                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                    🔢 Ejemplo: Si pones del 10 al 50, traerá los superhéroes con ID 10, 11, 12... hasta el 50
+                </small>
             </div>
             
             <div style="text-align: center;">
