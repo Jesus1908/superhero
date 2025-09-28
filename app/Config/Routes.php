@@ -21,3 +21,8 @@ $routes->get('/reportes/buscar', 'ReporteController::buscarView');
 //Reporte Tarea 1
 $routes->get('/reportes/tarea1', 'ReporteController::tarea1Form');
 $routes->post('/reportes/generar-tarea1', 'ReporteController::generarTarea1');
+
+//Reporte Tarea 2
+$routes->get('/reportes/tarea2', 'ReporteController::tarea2Form');
+$routes->post('/reportes/generar-tarea2', 'ReporteController::generarTarea2');
+$routes->post('/reportes/generar-grafico', 'ReporteController::generarGrafico');

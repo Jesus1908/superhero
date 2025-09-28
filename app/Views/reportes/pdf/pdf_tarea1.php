@@ -126,7 +126,7 @@
     </table>
     <?php else: ?>
     <div class="info-section">
-        <div class="info-label">⚠️ No se encontraron superhéroes</div>
+        <div class="info-label">No se encontraron superhéroes</div>
         <div class="info-value">No hay superhéroes que coincidan con los criterios de búsqueda seleccionados.</div>
     </div>
     <?php endif; ?>

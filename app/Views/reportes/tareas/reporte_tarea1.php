@@ -165,15 +165,15 @@
                 <div class="checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" name="generos[]" value="1">
-                        <span class="checkmark">♂️ Masculino</span>
+                        <span class="checkmark">Masculino</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="generos[]" value="2">
-                        <span class="checkmark">♀️ Femenino</span>
+                        <span class="checkmark">Femenino</span>
                     </label>
                     <label class="checkbox-label">
                         <input type="checkbox" name="generos[]" value="3">
-                        <span class="checkmark">❓ N/A</span>
+                        <span class="checkmark">N/A</span>
                     </label>
                 </div>
             </div>
@@ -203,13 +203,13 @@
                     </div>
                 </div>
                 <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
-                    🔢 Ejemplo: Si pones del 10 al 50, traerá los superhéroes con ID 10, 11, 12... hasta el 50
+                    Ejemplo: Si pones del 10 al 50, traerá los superhéroes con ID 10, 11, 12... hasta el 50
                 </small>
             </div>
             
             <div style="text-align: center;">
                 <button type="submit" class="btn-generar">
-                    📄 Generar PDF
+                    Generar PDF
                 </button>
             </div>
         </form>
