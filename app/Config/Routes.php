@@ -17,3 +17,7 @@ $routes->get('/reportes/generar-poderes/(:num)', 'ReporteController::generarPdfP
 //Buscador
 $routes->get('/api/buscar', 'ReporteController::buscar');
 $routes->get('/reportes/buscar', 'ReporteController::buscarView');
+
+//Reporte Tarea 1
+$routes->get('/reportes/tarea1', 'ReporteController::tarea1Form');
+$routes->post('/reportes/generar-tarea1', 'ReporteController::generarTarea1');

@@ -234,4 +234,39 @@ class ReporteController extends BaseController
             echo $formater->getMessage();
         }
     }
+
+    public function tarea1Form() {
+        return view('reportes/tareas/reporte_tarea1');
+    }
+
+    public function generarTarea1() {
+        $tituloReporte = $this->request->getPost('titulo_reporte');
+
+        if (empty($tituloReporte)) {
+            return redirect()->to('/reportes/tarea1')
+                ->with('error', 'El título del reporte es obligatorio');
+        }
+
+        $data = [
+            'titulo_reporte' => $tituloReporte,
+            'fecha_generacion' => date('d/m/Y H:i:s'),
+            'estilos' => view('reportes/css/superpower.php')
+        ];
+
+        $html = view('reportes/pdf/pdf_tarea1', $data);
+
+        try {
+            $html2PDF = new Html2Pdf('P', 'A4', 'es', true, 'UTF-8', [20,20,20,20]);
+            $html2PDF->writeHTML($html);
+            $this->response->setHeader('Content-Type', 'application/pdf');
+            
+            // Crear nombre de archivo seguro
+            $safeTitle = preg_replace('/[^A-Za-z0-9_-]+/', '_', $tituloReporte);
+            $html2PDF->output('Reporte_' . $safeTitle . '.pdf');
+        } catch (Html2PdfException $e) {
+            $html2PDF->clean();
+            $formater = new ExceptionFormatter($e);
+            echo $formater->getMessage();
+        }
+    }
 }
